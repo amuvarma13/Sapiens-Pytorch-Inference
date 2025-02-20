@@ -4,6 +4,7 @@ import torch
 import cv2
 from cap_from_youtube import cap_from_youtube
 from sapiens_inference import SapiensPredictor, SapiensConfig, SapiensNormalType, SapiensDepthType
+import numpy as np
 
 # Initialize the configuration and predictor
 config = SapiensConfig()
@@ -79,5 +80,5 @@ out.release()
 cv2.destroyAllWindows()
 
 
-all_results_tensor = torch.stack(all_results)
-print(all_results_tensor.shape)
+all_results_array = np.stack(all_results)
+print(all_results_array.shape)
