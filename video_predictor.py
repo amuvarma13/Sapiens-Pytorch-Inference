@@ -19,14 +19,16 @@ if not cap.isOpened():
     print("Error: Cannot open video stream")
     exit()
 
-# Get FPS (and fallback to 30 if not available)
+# Get FPS (fallback to 30 if not available)
 fps = cap.get(cv2.CAP_PROP_FPS)
 if fps == 0:
     fps = 30
 
-# Create output directory for images if it doesn't exist
+# Create output directories for images and video if they don't exist
 if not os.path.exists("output_images"):
     os.makedirs("output_images")
+if not os.path.exists("output_images/video"):
+    os.makedirs("output_images/video")
 
 # Process a single frame to determine processed frame dimensions
 ret, frame = cap.read()
@@ -38,11 +40,13 @@ results = predictor(frame)
 result_height, result_width = results.shape[:2]
 print(f"Processed frame dimensions: {result_width}x{result_height}")
 
-# Initialize VideoWriter using the processed frame dimensions
+# Initialize VideoWriter using the processed frame dimensions.
+# Save the video inside 'output_images/video/'
+video_path = os.path.join("output_images", "video", "output.mp4")
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-out = cv2.VideoWriter("output.mp4", fourcc, fps, (result_width, result_height))
+out = cv2.VideoWriter(video_path, fourcc, fps, (result_width, result_height))
 
-# Save the first processed frame
+# Save the first processed frame as an image as well
 cv2.imwrite("output_images/frame_001.png", results)
 out.write(results)
 
