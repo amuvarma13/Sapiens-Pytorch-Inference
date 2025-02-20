@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 import torch
 import cv2
@@ -34,12 +35,16 @@ if total_frames > 0:
 else:
     print("Total frame count not available.")
 
+# Create output directories for video and images
+if not os.path.exists("output_images"):
+    os.makedirs("output_images")
+
 # Define the codec and create VideoWriter object to save as MP4
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter("output.mp4", fourcc, fps, (frame_width, frame_height))
 
-# Limit processing to 100 frames
-limit_frames = 20
+# Limit processing to a certain number of frames (e.g., 10)
+limit_frames = 10
 current_frame = 0
 
 while True:
@@ -52,11 +57,14 @@ while True:
 
     # Process the frame using the predictor
     results = predictor(frame)
-
     print(results.shape)
 
     # Write the processed frame to the output video file
     out.write(results)
+
+    # Save each processed frame as an image file in 'output_images/' folder
+    image_filename = f"output_images/frame_{current_frame:03d}.png"
+    cv2.imwrite(image_filename, results)
 
 print("\nProcessing complete.")
 
