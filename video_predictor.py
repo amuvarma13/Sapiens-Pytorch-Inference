@@ -39,7 +39,7 @@ fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter("output.mp4", fourcc, fps, (frame_width, frame_height))
 
 # Limit processing to 100 frames
-limit_frames = 10
+limit_frames = 20
 current_frame = 0
 
 while True:
