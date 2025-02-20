@@ -61,7 +61,8 @@ class SapiensPredictor:
 
         self.normal_predictor = SapiensNormal(config.normal_type, config.device,
                                               config.dtype) if self.has_normal else None
-        self.segmentation_predictor = SapiensSegmentation(config.segmentation_type, config.device, config.dtype)
+        # self.segmentation_predictor = SapiensSegmentation(config.segmentation_type, config.device, config.dtype)
+        self.segmentation_predictor = None
         self.depth_predictor = SapiensDepth(config.depth_type, config.device, config.dtype) if self.has_depth else None
         self.detector = None  #Detector(config.detector_config) #TODO: Cropping seems to make the results worse
 
