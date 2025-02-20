@@ -14,6 +14,9 @@ img = imread_from_url("https://github.com/ibaiGorordo/Sapiens-Pytorch-Inference/
 # Estimate the maps
 result = predictor(img)
 
-cv2.namedWindow("Combined", cv2.WINDOW_NORMAL)
-cv2.imshow("Combined", result)
-cv2.waitKey(0)
+#save the result
+cv2.imwrite('result.png', result)
+
+# cv2.namedWindow("Combined", cv2.WINDOW_NORMAL)
+# cv2.imshow("Combined", result)
+# cv2.waitKey(0)
