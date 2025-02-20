@@ -82,3 +82,25 @@ cv2.destroyAllWindows()
 
 all_results_array = np.stack(all_results)
 print(all_results_array.shape)
+import numpy as np
+from moviepy.editor import ImageSequenceClip
+
+def array_to_mp4_moviepy(array: np.ndarray, output_path: str, fps: int = 24):
+    """
+    Convert a numpy array of shape (num_frames, height, width, 3) into an MP4 video file using MoviePy.
+    
+    Parameters:
+      array (np.ndarray): Input video frames in RGB format.
+      output_path (str): Path where the MP4 file will be saved.
+      fps (int): Frames per second for the output video. Default is 24.
+    """
+    # MoviePy expects a list of frames
+    frames = [frame for frame in array]
+    clip = ImageSequenceClip(frames, fps=fps)
+    clip.write_videofile(output_path, codec="libx264")
+    print(f"Video saved to {output_path}")
+
+# Example usage:
+# video_array = np.random.randint(0, 255, (9, 1920, 2160, 3), dtype=np.uint8)
+# array_to_mp4_moviepy(video_array, "output_video.mp4", fps=24)
+array_to_mp4_moviepy(all_results_array, "output_images/mvp/output_video.mp4", fps=24)
