@@ -103,4 +103,4 @@ def array_to_mp4_moviepy(array: np.ndarray, output_path: str, fps: int = 24):
 # Example usage:
 # video_array = np.random.randint(0, 255, (9, 1920, 2160, 3), dtype=np.uint8)
 # array_to_mp4_moviepy(video_array, "output_video.mp4", fps=24)
-array_to_mp4_moviepy(all_results_array, "output_images/mvp/output_video.mp4", fps=24)
+array_to_mp4_moviepy(all_results_array, "output_vid/output_video.mp4", fps=24)
