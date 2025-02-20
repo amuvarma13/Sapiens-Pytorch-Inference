@@ -2,7 +2,6 @@ from datetime import timedelta
 import torch
 import cv2
 from cap_from_youtube import cap_from_youtube
-
 from sapiens_inference import SapiensPredictor, SapiensConfig, SapiensNormalType, SapiensDepthType
 
 config = SapiensConfig()
@@ -26,14 +25,26 @@ fps = cap.get(cv2.CAP_PROP_FPS)
 if fps == 0:
     fps = 30  # fallback if FPS is not available
 
+# Attempt to get total frame count
+total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+if total_frames > 0:
+    print(f"Total frames: {total_frames}")
+else:
+    print("Total frame count not available.")
+
 # Define the codec and create VideoWriter object
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter("output.mp4", fourcc, fps, (frame_width, frame_height))
 
+current_frame = 0
 while True:
     ret, frame = cap.read()
     if not ret:
         break
+
+    current_frame += 1
+    # Print progress: this will overwrite the same line
+    print(f"Processing frame {current_frame}/{total_frames if total_frames > 0 else 'Unknown'}", end='\r')
 
     # Process frame using the predictor
     results = predictor(frame)
@@ -41,7 +52,9 @@ while True:
     # Write the processed frame to the output file
     out.write(results)
 
-# Release everything if job is finished
+print("\nProcessing complete.")
+
+# Release resources
 cap.release()
 out.release()
 cv2.destroyAllWindows()
