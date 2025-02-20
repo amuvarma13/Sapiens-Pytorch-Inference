@@ -7,9 +7,7 @@ from sapiens_inference import SapiensPredictor, SapiensConfig, SapiensNormalType
 
 # Initialize the configuration and predictor
 config = SapiensConfig()
-# config.dtype = torch.float16
-config.normal_type = SapiensNormalType.NORMAL_1B  # Disabled by default
-# config.depth_type = SapiensDepthType.DEPTH_03B  # Disabled by default
+config.normal_type = SapiensNormalType.NORMAL_1B  # Normal configuration
 predictor = SapiensPredictor(config)
 
 # Define the YouTube video URL and start time
@@ -21,48 +19,48 @@ if not cap.isOpened():
     print("Error: Cannot open video stream")
     exit()
 
-# Retrieve frame dimensions and FPS from the capture
-frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+# Get FPS (and fallback to 30 if not available)
 fps = cap.get(cv2.CAP_PROP_FPS)
 if fps == 0:
-    fps = 30  # Fallback if FPS is not available
+    fps = 30
 
-# Attempt to get total frame count (may not be available for some streams)
-total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-if total_frames > 0:
-    print(f"Total frames: {total_frames}")
-else:
-    print("Total frame count not available.")
-
-# Create output directories for video and images
+# Create output directory for images if it doesn't exist
 if not os.path.exists("output_images"):
     os.makedirs("output_images")
 
-# Define the codec and create VideoWriter object to save as MP4
+# Process a single frame to determine processed frame dimensions
+ret, frame = cap.read()
+if not ret:
+    print("Error: Unable to read frame.")
+    exit()
+
+results = predictor(frame)
+result_height, result_width = results.shape[:2]
+print(f"Processed frame dimensions: {result_width}x{result_height}")
+
+# Initialize VideoWriter using the processed frame dimensions
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-out = cv2.VideoWriter("output.mp4", fourcc, fps, (frame_width, frame_height))
+out = cv2.VideoWriter("output.mp4", fourcc, fps, (result_width, result_height))
 
-# Limit processing to a certain number of frames (e.g., 10)
+# Save the first processed frame
+cv2.imwrite("output_images/frame_001.png", results)
+out.write(results)
+
+# Set frame processing limit (including the first processed frame)
 limit_frames = 10
-current_frame = 0
+current_frame = 1
 
-while True:
+while current_frame < limit_frames:
     ret, frame = cap.read()
-    if not ret or current_frame >= limit_frames:
+    if not ret:
         break
 
+    results = predictor(frame)
     current_frame += 1
     print(f"Processing frame {current_frame}/{limit_frames}", end='\r')
 
-    # Process the frame using the predictor
-    results = predictor(frame)
-    print(results.shape)
-
-    # Write the processed frame to the output video file
+    # Write processed frame to video and save as image
     out.write(results)
-
-    # Save each processed frame as an image file in 'output_images/' folder
     image_filename = f"output_images/frame_{current_frame:03d}.png"
     cv2.imwrite(image_filename, results)
 
