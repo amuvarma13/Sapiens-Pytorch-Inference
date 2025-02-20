@@ -1,6 +1,7 @@
 from datetime import timedelta
 import torch
 import cv2
+import numpy as np
 from cap_from_youtube import cap_from_youtube
 from sapiens_inference import SapiensPredictor, SapiensConfig, SapiensNormalType, SapiensDepthType
 
@@ -37,9 +38,12 @@ else:
 # Define the codec and create VideoWriter object to save as MP4
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter("output.mp4", fourcc, fps, (frame_width, frame_height))
+if not out.isOpened():
+    print("Error: VideoWriter did not open properly")
+    exit()
 
-# Limit processing to 100 frames
-limit_frames = 100
+# Limit processing to 10 frames (or 100 frames as desired)
+limit_frames = 10
 current_frame = 0
 
 while True:
@@ -52,6 +56,24 @@ while True:
 
     # Process the frame using the predictor
     results = predictor(frame)
+
+    # Debug: print shape and dtype of results
+    # Uncomment the next line to see the output frame properties
+    # print(results.shape, results.dtype)
+
+    # Ensure the results are in the proper format (uint8, 3 channels, correct size)
+    # Convert results to uint8 if they are not already (adjust conversion if needed)
+    if results.dtype != 'uint8':
+        # Assuming results are normalized in [0, 1] or are float, scale to 255
+        results = (results * 255).clip(0, 255).astype('uint8')
+
+    # If the predictor returns an image in RGB, convert it to BGR
+    if results.shape[2] == 3:
+        results = cv2.cvtColor(results, cv2.COLOR_RGB2BGR)
+
+    # Resize the processed frame if its dimensions don't match the expected size
+    if (results.shape[1], results.shape[0]) != (frame_width, frame_height):
+        results = cv2.resize(results, (frame_width, frame_height))
 
     # Write the processed frame to the output video file
     out.write(results)
